@@ -10,13 +10,13 @@ const getDBData = () => {
   return JSON.parse(fileData);
 };
 
-// Function for localhost:5000/products
+// Function for get localhost:5000/products
 export const getAllProductsFromDB = () => {
   const jsonData = getDBData();
   return jsonData.products;
 };
 
-// Function for localhost:5000/products/:id
+// Function for get localhost:5000/products/:id
 export const getSingleProductFromDB = (id: number) => {
   const jsonData = getDBData(); // Calls the same helper above
   return jsonData.products.find((p: any) => p.id === id);
@@ -47,3 +47,51 @@ export const createProductInDB = (newProductData: any) => {
   return newProduct;
 };
 
+// Function for PUT localhost:5000/products/:id
+export const updateProductInDB = (id: number, updatedData: any) => {
+  const filePath = path.join(process.cwd(), "src", "database", "db.json");
+  const jsonData = getDBData();
+
+  // 1. Find the index of the product
+  const index = jsonData.products.findIndex((p: any) => p.id === id);
+
+  // 2. If it doesn't exist, return null
+  if (index === -1) {
+    return null;
+  }
+
+  // 3. Merge the old data with the new data (ensuring the ID stays the same)
+  const updatedProduct = {
+    ...jsonData.products[index],
+    ...updatedData,
+    id: id, 
+  };
+
+  jsonData.products[index] = updatedProduct;
+
+  // 4. Save back to the file
+  fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), "utf-8");
+
+  return updatedProduct;
+};
+
+// Function for DELETE localhost:5000/products/:id
+export const deleteProductFromDB = (id: number) => {
+  const filePath = path.join(process.cwd(), "src", "database", "db.json");
+  const jsonData = getDBData();
+
+  const initialLength = jsonData.products.length;
+
+  // 1. Filter out the product with the matching ID
+  jsonData.products = jsonData.products.filter((p: any) => p.id !== id);
+
+  // 2. If the length hasn't changed, the product wasn't found
+  if (jsonData.products.length === initialLength) {
+    return false;
+  }
+
+  // 3. Save the new array back to the file
+  fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), "utf-8");
+
+  return true;
+};
