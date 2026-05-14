@@ -48,6 +48,7 @@ export const getProductById = (res: ServerResponse, id: string) => {
   );
 };
 
+  // post a new product
 export const createProduct = async (req: IncomingMessage, res: ServerResponse) => {
   try {
     // 1. Wait for the data chunks to assemble
