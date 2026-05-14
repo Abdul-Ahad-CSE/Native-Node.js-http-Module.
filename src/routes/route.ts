@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getProductById, getProducts } from "../controller/product.controller";
+import { createProduct, getProductById, getProducts } from "../controller/product.controller";
 
 export const routes = (req: IncomingMessage, res: ServerResponse) => {
   const url = req.url;
@@ -38,6 +38,12 @@ export const routes = (req: IncomingMessage, res: ServerResponse) => {
     if (id) {
       return getProductById(res, id);
     }
+  }
+
+  // ---> NEW: Create a Product (POST route) <---
+  if (url === "/products" && method === "POST") {
+    // Notice we pass both req and res here!
+    return createProduct(req, res);
   }
 
   // 404 Route

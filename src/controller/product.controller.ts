@@ -1,8 +1,10 @@
-import type { ServerResponse } from "http";
+import type { IncomingMessage, ServerResponse } from "http";
 import {
+  createProductInDB,
   getAllProductsFromDB,
   getSingleProductFromDB,
 } from "../service/product.service";
+import { parseBody } from "../utility/parseBody";
 
 // 1. Get All Products
 export const getProducts = (res: ServerResponse) => {
@@ -44,4 +46,36 @@ export const getProductById = (res: ServerResponse, id: string) => {
       data: product,
     }),
   );
+};
+
+export const createProduct = async (req: IncomingMessage, res: ServerResponse) => {
+  try {
+    // 1. Wait for the data chunks to assemble
+    const body = await parseBody(req);
+
+    // 2. Send the assembled data to the database
+    const newProduct = createProductInDB(body);
+    console.log(newProduct);
+
+    // 3. Respond with 201 Created
+    res.statusCode = 201;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        success: true,
+        message: "Product created successfully",
+        data: newProduct,
+      })
+    );
+  } catch (error) {
+    // If JSON parsing fails, return a 400 Bad Request
+    res.statusCode = 400;
+    res.setHeader("Content-Type", "application/json");
+    return res.end(
+      JSON.stringify({
+        success: false,
+        message: "Invalid JSON data provided",
+      })
+    );
+  }
 };

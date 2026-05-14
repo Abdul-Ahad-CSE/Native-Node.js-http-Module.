@@ -22,3 +22,28 @@ export const getSingleProductFromDB = (id: number) => {
   return jsonData.products.find((p: any) => p.id === id);
 };
 
+// Function for POST localhost:5000/products
+export const createProductInDB = (newProductData: any) => {
+  const filePath = path.join(process.cwd(), "src", "database", "db.json");
+  const jsonData = getDBData(); // Read existing data
+
+  // 1. Generate a new ID (finds the highest current ID and adds 1)
+  const newId = jsonData.products.length > 0 
+    ? Math.max(...jsonData.products.map((p: any) => p.id)) + 1 
+    : 1;
+
+  // 2. Create the full product object
+  const newProduct = {
+    id: newId,
+    ...newProductData,
+  };
+
+  // 3. Push the new product to our javascript array
+  jsonData.products.push(newProduct);
+
+  // 4. Write the updated array back to db.json as a string
+  fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), "utf-8");
+
+  return newProduct;
+};
+
